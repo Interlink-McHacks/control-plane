@@ -3,6 +3,7 @@ const nJwt = require('njwt');
 
 const User = require('../models/User');
 const Tenant = require('../models/Tenant');
+const TenantACL = require('../models/TenantACL');
 
 const signingKey = process.env.JWT_KEY;
 
@@ -28,16 +29,14 @@ UserController.login = async function(email, password) {
     }
 
     if(await argon2.verify(user["password"], password)){
-        const userACLs = await Tenant.find({
-            userID: user["_id"]
-        });
+        const userACLs = await UserController.getUserACLs(user.id);
 
         return {
             token: nJwt.create({
                 iss: "interlink::control-plane",
-                sub: user["_id"].toString(),
+                sub: user.id.toString(),
                 user: {
-                    id: user["_id"].toString(),
+                    id: user.id.toString(),
                     name: user["name"],
                     email: email,
                     acls: userACLs
@@ -60,6 +59,14 @@ UserController.getUser = async function(id) {
     }
 
     return user;
+}
+
+UserController.getUserACLs = async function(id) {
+    const acls = await TenantACL.find({
+        userID: id
+    });
+
+    return acls;
 }
 
 module.exports = UserController;

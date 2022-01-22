@@ -2,21 +2,19 @@ const mongoose = require('mongoose');
 const fields = {
     tenantID: {
         type: String,
-        required: true,
-        index: true
+        required: true
     },
-    userID: {
+    name: {
         type: String,
         required: true,
-        index: true
+        unique: true
+    },
+    destination: {
+        type: String,
+        required: true
     }
 }
 
 const schema = new mongoose.Schema(fields);
 
-schema.index({
-    tenantID: 1,
-    userID: 1
-}, {unique: true})
-
-module.exports = mongoose.model('TenantACL', schema);
+module.exports = mongoose.model('DNSAEntry', schema);

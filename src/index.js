@@ -9,7 +9,7 @@ mongoose.connect(process.env.MONGO_URL).then((result) => {
     const HTTPServer = http.createServer(ExpressRouting);
     const port = process.env.PORT || '3000';
 
-    HTTPServer.listen(port);
+    HTTPServer.listen(port, '0.0.0.0');
     HTTPServer.on('listening', function() {
         console.log(`Listening on port ${port}`);
     })

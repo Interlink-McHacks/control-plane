@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const fields = {
     name: {
         type: String,
@@ -10,10 +11,15 @@ const fields = {
     },
     secret: {
         type: String,
-        required: true
+        required: true,
+        index: true
     },
     tenantID: {
         type: String,
-        required: true
+        required: true,
+        index: true
     }
 }
+
+const schema = new mongoose.Schema(fields);
+module.exports = mongoose.model('Host', schema)

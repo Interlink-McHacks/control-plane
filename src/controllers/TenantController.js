@@ -35,4 +35,24 @@ TenantController.deleteACL = async function(id, userID) {
     })
 }
 
+TenantController.getACLs = async function(id) {
+    const acls = await TenantACL.find({
+        tenantID: id
+    });
+
+    return acls;
+}
+
+TenantController.getJoinToken = async function(id) {
+    const tenant = await Tenant.findOne({
+        _id: id
+    }).select('joinToken');
+
+    if(!tenant){
+        throw Error("Tenant does not exist.");
+    }
+
+    return tenant.joinToken;
+}
+
 module.exports = TenantController;
