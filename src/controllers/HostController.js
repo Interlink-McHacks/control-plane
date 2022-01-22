@@ -3,13 +3,11 @@ const Host = require('../models/Host');
 
 const HostController = {};
 
-HostController.createHost = async function(tenantID, name) {
+HostController.createHost = async function(tenantID, name, contactPoint) {
     const secret = short.generate();
 
     const host = await Host.create({
-        name: name,
-        tenantID: tenantID,
-        secret: secret
+        name, tenantID, secret, contactPoint
     });
 
     return {
@@ -28,6 +26,30 @@ HostController.getHostSecret = async function(hostID) {
     }
 
     return host.secret;
+}
+
+HostController.getHost = async function(hostID) {
+    const host = await Host.findOne({
+        _id: hostID
+    });
+
+    if(!host){
+        throw Error("Host does not exist.")
+    }
+
+    return host;
+}
+
+HostController.getHostControl = async function(hostID) {
+    return {
+
+    }
+}
+
+HostController.deleteHost = async function(id) {
+    await Host.deleteOne({
+        _id: id
+    })
 }
 
 module.exports = HostController;

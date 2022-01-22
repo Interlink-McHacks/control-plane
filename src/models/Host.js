@@ -18,6 +18,11 @@ const fields = {
         type: String,
         required: true,
         index: true
+    },
+    contactPoint: {
+        type: String,
+        required: true,
+        index: true
     }
 }
 

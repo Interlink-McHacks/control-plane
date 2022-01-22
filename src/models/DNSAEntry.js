@@ -12,6 +12,9 @@ const fields = {
     destination: {
         type: String,
         required: true
+    },
+    description: {
+        type: String
     }
 }
 

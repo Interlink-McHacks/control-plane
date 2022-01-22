@@ -41,9 +41,7 @@ router.get('/user', permissions.isUser, (req, res) => {
         return res.json({
             status: 200,
             message: "OK",
-            data: {
-                user: user
-            }
+            data: user
         })
     }).catch((err) => {
         console.error("fetch user error", err);
@@ -203,16 +201,16 @@ router.delete('/tenant/:tenantID/user/:userID', permissions.isUserInTenant, (req
 
 router.post('/tenant/:tenantID/host', (req, res) => {
     // must include tenant jointoken in body
-    if(!req.body.joinToken || !req.body.name){
+    if(!req.body.joinToken || !req.body.name || !req.body.contactPoint){
         return res.json({
             status: 401,
-            error: "name and joinToken is required."
+            error: "name, joinToken, and contactPoint is required."
         })
     }
 
     TenantController.getJoinToken(req.params.tenantID).then((joinToken) => {
         if(joinToken === req.body.joinToken){
-            HostController.createHost(req.params.tenantID, req.body.name).then((host) => {
+            HostController.createHost(req.params.tenantID, req.body.name, req.body.contactPoint).then((host) => {
                 return res.json({
                     status: 200,
                     message: "OK",
@@ -242,15 +240,76 @@ router.post('/tenant/:tenantID/host', (req, res) => {
 })
 
 router.get('/tenant/:tenantID/host/:hostID', permissions.isUserInTenant, (req, res) => {
-
+    HostController.getHost(req.params.hostID).then((host) => {
+        return res.json({
+            status: 200,
+            message: "OK",
+            data: {
+                host: host
+            }
+        })
+    }).catch((err) => {
+        console.error('get host error', err);
+        return res.status(500).json({
+            status: 500,
+            error: err.message
+        })
+    })
 })
 
 router.get('/tenant/:tenantID/host/:hostID/cmd', (req, res) => {
+    if(!req.body.secret) {
+        return res.status(401).json({
+            status: 401,
+            message: "Secret token is required."
+        });
+    }
+
+    HostController.getHostSecret(req.params.hostID).then((secret) => {
+        if(secret === req.body.secret){
+            HostController.getHostControl(req.params.hostID).then((hostControl) => {
+                return res.json({
+                    status: 200,
+                    message: "OK",
+                    data: hostControl
+                })
+            }).catch((err) => {
+                console.error('get host command error', err);
+                return res.status(500).json({
+                    status: 500,
+                    error: err.message
+                })
+            })
+        }
+        else {
+            return res.status(403).json({
+                status: 403,
+                error: "Invalid secret."
+            })
+        }
+    }).catch((err) => {
+        console.error('get host secret during get host control error', err);
+        return res.status(500).json({
+            status: 500,
+            error: err.message
+        })
+    })
 
 })
 
 router.delete('/tenant/:tenantID/host/:hostID', (req, res) => {
-
+    HostController.deleteHost(req.params.hostID).then(() => {
+        return res.json({
+            status: 200,
+            message: "OK"
+        })
+    }).catch((err) => {
+        console.error('delete host error', err);
+        return res.status(500).json({
+            status: 500,
+            error: err.message
+        })
+    })
 })
 
 
@@ -275,7 +334,7 @@ router.post('/tenant/:tenantID/dns/A', permissions.isUserInTenant, (req, res) =>
         })
     }
 
-    DNSController.createARecord(req.params.tenantID, req.body.name, req.body.destination).then((recordID) => {
+    DNSController.createARecord(req.params.tenantID, req.body.name, req.body.destination, req.body.description).then((recordID) => {
         return res.json({
             status: 200,
             message: "OK",
@@ -289,6 +348,13 @@ router.post('/tenant/:tenantID/dns/A', permissions.isUserInTenant, (req, res) =>
             status: 500,
             error: err.message
         })
+    })
+})
+
+router.get('/healthcheck', (req, res) => {
+    return res.json({
+        status: 200,
+        message: "OK"
     })
 })
 
