@@ -6,9 +6,7 @@ module.exports = function(request, socket, head) {
         const reqURL = new URL(request.url, 'http://example.com');
 
         if(reqURL.pathname === '/controlplane'){
-            // ControlPlaneWS.handleUpgrade(request, socket, head, socket => {
-            //     ControlPlaneWS.emit('connection', socket, reqURL)
-            // });
+            ControlPlaneWS.handleUpgrade(request, socket, head, reqURL);
         }
         else if (reqURL.pathname.startsWith('/relay')){
             WSRelay.handleUpgrade(request, socket, head, reqURL);

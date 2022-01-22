@@ -18,3 +18,5 @@ const fields = {
 }
 
 const schema = new mongoose.Schema(fields);
+
+module.exports = mongoose.model('Tunnel', schema);

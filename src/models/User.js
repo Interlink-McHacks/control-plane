@@ -1,17 +1,14 @@
 const mongoose = require("mongoose");
 
 const fields = {
-    firstName: {
+    name: {
         type: String,
         required: true
     },
-    lastName: {
+    email: {
         type: String,
-        required: true
-    },
-    tenantID: {
-        type: String,
-        required: true
+        required: true,
+        index: true
     },
     password: {
         type: String,
@@ -20,3 +17,5 @@ const fields = {
 }
 
 const schema = new mongoose.Schema(fields);
+
+module.exports = mongoose.model('User', schema);
