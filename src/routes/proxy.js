@@ -18,9 +18,9 @@ module.exports = (req, res, next) => {
                         connectionCache[tunnelInfo] = {
                             contactPoint: host['contactPoint'],
                             port: tunnel['wgListeningPort'],
-                            type: tunnel['type'],
-                            middleware: proxy(`http://${connectionCache[tunnelInfo]['contactPoint']}:${connectionCache[tunnelInfo]['port']}`)
+                            type: tunnel['type']
                         }
+                        connectionCache[tunnelInfo]['middleware'] = proxy(`http://${connectionCache[tunnelInfo]['contactPoint']}:${connectionCache[tunnelInfo]['port']}`)
 
                         if(host.online && connectionCache[tunnelInfo].type === "HTTP"){
                             return connectionCache[tunnelInfo].middleware(req, res, next);
