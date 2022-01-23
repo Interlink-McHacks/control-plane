@@ -27,14 +27,14 @@ const fields = {
     assignedWGPorts: {
         type: [Number],
         required: true,
-        default: false
+        default: []
     }
 }
 
 const schema = new mongoose.Schema(fields);
 
 schema.statics.registerWGPort = async function(hostID) {
-    const host = this.findOne({
+    const host = await this.findOne({
         _id: hostID
     }).select('assignedWGPorts');
 
@@ -53,7 +53,7 @@ schema.statics.registerWGPort = async function(hostID) {
                     assignedWGPorts: num
                 }
             });
-            return process.env.WG_SUBNET_PREFIX + num;
+            return num;
         }
     }
 }

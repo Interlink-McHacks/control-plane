@@ -341,16 +341,16 @@ router.delete('/tenant/:tenantID/host/:hostID', (req, res) => {
 
 
 router.post('/tenant/:tenantID/tunnel', permissions.isUserInTenant, (req, res) => {
-    if(!req.body.name || !req.body.description || !req.body.hostID || !req.body.hostConnectPort || req.body.type){
+    if(!req.body.name || !req.body.hostID || !req.body.hostConnectPort){
         return res.json({
             status: 400,
-            error: "name, description, hostID, hostConnectPort, type are required"
+            error: "name, hostID, hostConnectPort are required"
         })
     }
 
     const {name, description, hostID, hostConnectPort, type} = req.body;
 
-    TunnelController.createTunnel(name, description, hostID, hostConnectPort, type).then((tunnel) => {
+    TunnelController.createTunnel(name, description, hostID, req.params.tenantID, hostConnectPort, type).then((tunnel) => {
         return res.json({
             status: 200,
             message: "OK",

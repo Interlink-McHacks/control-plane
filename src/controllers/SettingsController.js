@@ -2,6 +2,13 @@ const Setting = require("../models/Setting");
 
 const SettingsController = {};
 
+SettingsController.ensure = async function() {
+    const setting = await Setting.findOne({});
+    if(!setting){
+        await Setting.create({});
+    }
+}
+
 SettingsController.generateOpenIP = async function() {
    const settings = await Setting.findOne({}).select('assignedIPs');
 
