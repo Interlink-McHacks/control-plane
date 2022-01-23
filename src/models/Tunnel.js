@@ -15,6 +15,14 @@ const fields = {
         type: String,
         required: true
     },
+    srcPort: {
+        type: Number,
+        required: true
+    },
+    destPort: {
+        type: Number,
+        required: true
+    }
 }
 
 const schema = new mongoose.Schema(fields);
