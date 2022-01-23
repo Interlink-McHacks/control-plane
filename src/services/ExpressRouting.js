@@ -12,7 +12,7 @@ app.use(cors());
 
 app.use(express.json())
 
-app.use('*', proxyRouter);
+app.use(proxyRouter);
 
 app.use('/api',apiRouter);
 
