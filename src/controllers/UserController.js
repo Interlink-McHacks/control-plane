@@ -40,7 +40,7 @@ UserController.login = async function(email, password) {
                     email: email,
                     acls: userACLs
                 }
-            }, signingKey).compact()
+            }, signingKey).setExpiration().compact()
         }
     }
     else {
