@@ -342,7 +342,7 @@ router.delete('/tenant/:tenantID/host/:hostID', (req, res) => {
 
 router.post('/tenant/:tenantID/tunnel', permissions.isUserInTenant, (req, res) => {
     if(!req.body.name || !req.body.hostID || !req.body.hostConnectPort){
-        return res.json({
+        return res.status(400).json({
             status: 400,
             error: "name, hostID, hostConnectPort are required"
         })

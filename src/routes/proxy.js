@@ -1,16 +1,10 @@
-const httpProxy = require('http-proxy');
+const proxy = require('express-http-proxy');
 
 const TunnelController = require('../controllers/TunnelController');
 const HostController = require('../controllers/HostController');
 const TenantController = require('../controllers/TenantController');
 
 const connectionCache = {};
-
-const proxyServer = httpProxy.createProxyServer({});
-
-proxyServer.on('error', (err) => {
-    console.error('proxy error', err);
-})
 
 module.exports = (req, res, next) => {
     if(req.hostname.endsWith(process.env.REVERSE_DOMAIN)){
@@ -24,11 +18,12 @@ module.exports = (req, res, next) => {
                         connectionCache[tunnelInfo] = {
                             contactPoint: host['contactPoint'],
                             port: tunnel['wgListeningPort'],
-                            type: tunnel['type']
+                            type: tunnel['type'],
+                            middleware: proxy(`http://${connectionCache[tunnelInfo]['contactPoint']}:${connectionCache[tunnelInfo]['port']}`)
                         }
 
                         if(host.online && connectionCache[tunnelInfo].type === "HTTP"){
-                            return proxyServer.web(req, res, {target: `http://${connectionCache[tunnelInfo]['contactPoint']}:${connectionCache[tunnelInfo]['port']}`});
+                            return connectionCache[tunnelInfo].middleware(req, res, next);
                         }
                         else {
                             console.log("Attempted to connect to tunnel with no online host or incompatible type.")
@@ -62,7 +57,7 @@ module.exports = (req, res, next) => {
         }
         else {
             if(connectionCache[tunnelInfo].type === "HTTP"){
-                return proxyServer.web(req, res, {target: `http://${connectionCache[tunnelInfo]['contactPoint']}:${connectionCache[tunnelInfo]['port']}`})
+                return connectionCache[tunnelInfo].middleware(req, res, next);
             }
             else {
                 return res.status(503).json({
