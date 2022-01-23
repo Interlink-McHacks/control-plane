@@ -5,6 +5,7 @@ const UserController = require('../controllers/UserController');
 const TenantController = require('../controllers/TenantController');
 const HostController = require('../controllers/HostController');
 const DNSController = require('../controllers/DNSController');
+const TunnelController = require('../controllers/TunnelController');
 
 const permissions = require('../services/permissions');
 
@@ -239,6 +240,24 @@ router.post('/tenant/:tenantID/host', (req, res) => {
     })
 })
 
+router.get('/tenant/:tenantID/host', permissions.isUserInTenant, (req, res) => {
+    HostController.getHost(req.params.hostID).then((host) => {
+        return res.json({
+            status: 200,
+            message: "OK",
+            data: {
+                host: host
+            }
+        })
+    }).catch((err) => {
+        console.error('get host error', err);
+        return res.status(500).json({
+            status: 500,
+            error: err.message
+        })
+    })
+})
+
 router.get('/tenant/:tenantID/host/:hostID', permissions.isUserInTenant, (req, res) => {
     HostController.getHost(req.params.hostID).then((host) => {
         return res.json({
@@ -313,7 +332,7 @@ router.delete('/tenant/:tenantID/host/:hostID', (req, res) => {
 })
 
 
-router.post('/tenant/:tenantID/tunnel', (req, res) => {
+router.post('/tenant/:tenantID/tunnel', permissions.isUserInTenant, (req, res) => {
     if(!req.body.name || !req.body.description || !req.body.hostID || !req.body.hostConnectPort || !req.body.wgListeningPort || req.body.type){
         return res.json({
             status: 400,
@@ -321,15 +340,71 @@ router.post('/tenant/:tenantID/tunnel', (req, res) => {
         })
     }
 
+    const {name, description, hostID, hostConnectPort, wgListeningPort, type} = req.body;
+
+    TunnelController.createTunnel(name, description, hostID, hostConnectPort, wgListeningPort, type).then((tunnel) => {
+        return res.json({
+            status: 200,
+            message: "OK",
+            data: tunnel
+        })
+    }).catch((err) => {
+        console.error('create tunnel error', err);
+        return res.status(500).json({
+            status: 500,
+            error: err.message
+        })
+    })
 })
 
-router.get('/tenant/:tenantID/tunnel/:tunnelID', (req, res) => {
+router.get('/tenant/:tenantID/tunnel', permissions.isUserInTenant, (req, res) => {
+    TunnelController.getTunnelsOfTenant(req.params.tenantID).then((tunnels) => {
+        return res.json({
+            status: 200,
+            message: "OK",
+            data: {
+                tunnels: tunnels
+            }
+        })
+    }).catch((err) => {
+        console.error('get tunnels of tenant error', err);
+        return res.status(500).json({
+            status: 500,
+            error: err.message
+        })
+    })
+})
 
+router.get('/tenant/:tenantID/tunnel/:tunnelID', permissions.isUserInTenant, (req, res) => {
+    TunnelController.getTunnel(req.params.tunnelID).then((tunnel) => {
+        return res.json({
+            status: 200,
+            message: "OK",
+            data: tunnel
+        });
+    }).catch((err) => {
+        console.error('get tunnel error', err);
+        return res.status(500).json({
+            status: 500,
+            error: err.message
+        })
+    })
 })
 
 
-router.delete('/tenant/:tenantID/tunnel/:tunnelID', (req, res) => {
-
+router.delete('/tenant/:tenantID/tunnel/:tunnelID', permissions.isUserInTenant, (req, res) => {
+    TunnelController.deleteTunnel(req.params.tunnelID).then(() => {
+        return res.json({
+            status: 200,
+            message: "OK"
+        })
+    }).catch((err) => {
+        console.error('delete tunnel error', err);
+        return res.status(500).json({
+            status: 500,
+            error: err.message
+        })
+    })
 })
 
 router.post('/tenant/:tenantID/dns/A', (req, res) => {

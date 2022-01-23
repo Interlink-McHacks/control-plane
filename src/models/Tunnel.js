@@ -9,11 +9,13 @@ const fields = {
     },
     hostID: {
         type: String,
-        required: true
+        required: true,
+        index: true
     },
     tenantID: {
         type: String,
-        required: true
+        required: true,
+        index: true
     },
     hostConnectPort: {
         type: Number,

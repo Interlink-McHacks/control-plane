@@ -1,5 +1,6 @@
 const short = require('short-uuid');
 const Host = require('../models/Host');
+const Tunnel = require('../models/Tunnel');
 const SettingsController = require('../controllers/SettingsController');
 
 const HostController = {};
@@ -44,14 +45,24 @@ HostController.getHost = async function(hostID) {
 }
 
 HostController.getHostControl = async function(hostID) {
-    return {
+    const tunnels = await Tunnel.find({
+        hostID: hostID
+    })
 
+    return {
+        tunnels: tunnels
     }
 }
 
 HostController.deleteHost = async function(id) {
     await Host.deleteOne({
         _id: id
+    })
+}
+
+HostController.getHostsOfTenant = function(tenantID) {
+    return Host.find({
+        tenantID: tenantID
     })
 }
 
