@@ -55,4 +55,16 @@ TenantController.getJoinToken = async function(id) {
     return tenant.joinToken;
 }
 
+TenantController.getTenantIDByName = async function(name) {
+    const tenant = await Tenant.findOne({
+        name: name
+    }).select('');
+
+    if(!tenant){
+        throw Error("Tenant does not exist.");
+    }
+
+    return tenant._id;
+}
+
 module.exports = TenantController;

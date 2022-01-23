@@ -35,4 +35,6 @@ const fields = {
 
 const schema = new mongoose.Schema(fields);
 
+schema.index({name: 1, tenantID: 1}, {unique: true});
+
 module.exports = mongoose.model('Tunnel', schema);

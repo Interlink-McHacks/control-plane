@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const fields = {
     name: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     joinToken: {
         type: String,

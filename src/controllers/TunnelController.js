@@ -27,6 +27,19 @@ TunnelController.getTunnel = async function(id) {
     return tunnel;
 }
 
+TunnelController.getTunnelByName = async function(name, tenantID) {
+    const tunnel = await Tunnel.findOne({
+        name: name,
+        tenantID: tenantID
+    });
+
+    if(!tunnel) {
+        throw Error("Given tunnel does not exist.")
+    }
+
+    return tunnel;
+}
+
 TunnelController.deleteTunnel = async function(id) {
     const tunnel = await Tunnel.findOne({
         _id: id
