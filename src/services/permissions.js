@@ -1,4 +1,4 @@
-const nJwt = require('nJwt');
+const nJwt = require('njwt');
 
 const UserController = require('../controllers/UserController');
 const TenantController = require('../controllers/TenantController');
