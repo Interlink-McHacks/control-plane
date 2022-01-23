@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const fields = {
     assignedIPs: {
-        type: [Number],
+        type: [String],
         required: true,
         default: []
     }

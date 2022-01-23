@@ -286,6 +286,14 @@ router.post('/tenant/:tenantID/host/:hostID/cmd', (req, res) => {
 
     HostController.getHostSecret(req.params.hostID).then((secret) => {
         if(secret === req.body.secret){
+            HostController.updateHeartbeat(req.params.hostID).catch((err) => {
+                console.error('update host heartbeat error', err);
+                return res.status(500).json({
+                    status: 500,
+                    error: err.message
+                })
+            })
+
             HostController.getHostControl(req.params.hostID).then((hostControl) => {
                 return res.json({
                     status: 200,
@@ -333,16 +341,16 @@ router.delete('/tenant/:tenantID/host/:hostID', (req, res) => {
 
 
 router.post('/tenant/:tenantID/tunnel', permissions.isUserInTenant, (req, res) => {
-    if(!req.body.name || !req.body.description || !req.body.hostID || !req.body.hostConnectPort || !req.body.wgListeningPort || req.body.type){
+    if(!req.body.name || !req.body.description || !req.body.hostID || !req.body.hostConnectPort || req.body.type){
         return res.json({
             status: 400,
-            error: "name, description, hostID, hostConnectPort, wgListeningPort, type are required"
+            error: "name, description, hostID, hostConnectPort, type are required"
         })
     }
 
-    const {name, description, hostID, hostConnectPort, wgListeningPort, type} = req.body;
+    const {name, description, hostID, hostConnectPort, type} = req.body;
 
-    TunnelController.createTunnel(name, description, hostID, hostConnectPort, wgListeningPort, type).then((tunnel) => {
+    TunnelController.createTunnel(name, description, hostID, hostConnectPort, type).then((tunnel) => {
         return res.json({
             status: 200,
             message: "OK",

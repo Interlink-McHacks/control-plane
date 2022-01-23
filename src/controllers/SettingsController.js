@@ -12,15 +12,23 @@ SettingsController.generateOpenIP = async function() {
    while (true) {
        const num = 2 + Math.floor(Math.random() * 252);
 
-       if(!settings['assignedIPs'].includes(num)){
+       if(!settings['assignedIPs'].includes(process.env.WG_SUBNET_PREFIX + num)){
            await Setting.updateOne({}, {
                $push: {
-                   assignedIPs: num
+                   assignedIPs: process.env.WG_SUBNET_PREFIX + num
                }
            });
            return process.env.WG_SUBNET_PREFIX + num;
        }
    }
+}
+
+SettingsController.unregisterIP = async function(ip) {
+    await Setting.updateOne({}, {
+        $pull: {
+            assignedIPs: ip
+        }
+    })
 }
 
 module.exports = SettingsController;

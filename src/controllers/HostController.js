@@ -54,10 +54,26 @@ HostController.getHostControl = async function(hostID) {
     }
 }
 
-HostController.deleteHost = async function(id) {
-    await Host.deleteOne({
-        _id: id
+HostController.updateHeartbeat = async function(hostID) {
+    await Host.updateOne({
+        _id: hostID
+    }, {
+        lastHeartbeat: Date.now()
     })
+}
+
+HostController.deleteHost = async function(id) {
+    const host = await Host.findOne({
+        _id: id
+    }).select('contactPoint');
+
+    if(host) {
+        await SettingsController.unregisterIP(host["contactPoint"]);
+        await Host.deleteOne({
+            _id: id
+        })
+    }
+
 }
 
 HostController.getHostsOfTenant = function(tenantID) {
@@ -65,5 +81,6 @@ HostController.getHostsOfTenant = function(tenantID) {
         tenantID: tenantID
     })
 }
+
 
 module.exports = HostController;
