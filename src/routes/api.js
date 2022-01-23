@@ -241,16 +241,16 @@ router.post('/tenant/:tenantID/host', (req, res) => {
 })
 
 router.get('/tenant/:tenantID/host', permissions.isUserInTenant, (req, res) => {
-    HostController.getHost(req.params.hostID).then((host) => {
+    HostController.getHostsOfTenant(req.params.tenantID).then((hosts) => {
         return res.json({
             status: 200,
             message: "OK",
             data: {
-                host: host
+                hosts
             }
         })
     }).catch((err) => {
-        console.error('get host error', err);
+        console.error('get hosts error', err);
         return res.status(500).json({
             status: 500,
             error: err.message
@@ -399,6 +399,23 @@ router.get('/tenant/:tenantID/tunnel/:tunnelID', permissions.isUserInTenant, (re
     })
 })
 
+router.post('/tenant/:tenantID/tunnel/:tunnelID/connection', permissions.isUserInTenant, (req, res) => {
+    TunnelController.createConnectionToken(req.user.id, req.params.tunnelID).then((token) => {
+        return res.json({
+            status: 200,
+            message: "OK",
+            data: {
+                token: token
+            }
+        })
+    }).catch((err) => {
+        console.error('get tunnel connection token error', err);
+        return res.status(500).json({
+            status: 500,
+            error: err.message
+        })
+    })
+})
 
 router.delete('/tenant/:tenantID/tunnel/:tunnelID', permissions.isUserInTenant, (req, res) => {
     TunnelController.deleteTunnel(req.params.tunnelID).then(() => {

@@ -2,7 +2,6 @@ const argon2 = require('argon2');
 const nJwt = require('njwt');
 
 const User = require('../models/User');
-const Tenant = require('../models/Tenant');
 const TenantACL = require('../models/TenantACL');
 
 const signingKey = process.env.JWT_KEY;

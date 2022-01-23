@@ -31,7 +31,10 @@ const fields = {
     }
 }
 
-const schema = new mongoose.Schema(fields);
+const schema = new mongoose.Schema(fields, {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true }
+});
 
 schema.statics.registerWGPort = async function(hostID) {
     const host = await this.findOne({
@@ -67,5 +70,9 @@ schema.statics.unregisterWGPort = function(hostID, port) {
         }
     })
 }
+
+schema.virtual('online').get(function() {
+    return (Math.abs(Date.now() - this.lastHeartbeat) <= 30 * 1000);
+})
 
 module.exports = mongoose.model('Host', schema)

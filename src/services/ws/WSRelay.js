@@ -1,20 +1,40 @@
-const WebSocket = require('faye-websocket')
+const nJwt = require('njwt');
+const WebSocket = require('faye-websocket');
+const TunnelController = require('../../controllers/TunnelController');
+const HostController = require('../../controllers/HostController');
 
 module.exports = {
     handleUpgrade(request, socket, head, reqURL) {
         const queryObject = reqURL.searchParams;
-        const relayDestinationName = queryObject.get('destination');
         const token = queryObject.get('token');
 
-        // TODO: verify the token is allowed to access the relay destination
+        nJwt.verify(token, process.env.JWT_KEY, function(err, verifiedJwt) {
+            if(err){
+                return socket.close();
+            }
 
-        // TODO: get the websocket endpoint
+            if (WebSocket.isWebSocket(request)) {
+                TunnelController.getTunnel(verifiedJwt.body.tunnelID).then((tunnel) => {
+                    HostController.getHost(tunnel.hostID).then((host) => {
+                        if(host.online){
+                            const wss = new WebSocket(request, socket, head);
+                            const ws = new WebSocket.Client(`ws://${host['contactPoint']}:${tunnel['wgListeningPort']}`);
 
-        if (WebSocket.isWebSocket(request)) {
-            const wss = new WebSocket(request, socket, head);
-            const ws = new WebSocket.Client('ws://host2.interlink.rest:8080');
-
-            wss.pipe(ws).pipe(wss);
-        }
+                            wss.pipe(ws).pipe(wss);
+                        }
+                        else {
+                            console.log("Attempted to connect to tunnel with no online host.")
+                            return socket.close();
+                        }
+                    }).catch((err) => {
+                        console.error("cannot fetch host info", err);
+                        return socket.close();
+                    })
+                }).catch((err) => {
+                    console.error("cannot fetch tunnel info", err);
+                    return socket.close();
+                })
+            }
+        });
     }
 }
