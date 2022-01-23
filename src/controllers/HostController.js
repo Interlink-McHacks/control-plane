@@ -1,10 +1,12 @@
 const short = require('short-uuid');
 const Host = require('../models/Host');
+const SettingsController = require('../controllers/SettingsController');
 
 const HostController = {};
 
-HostController.createHost = async function(tenantID, name, contactPoint) {
+HostController.createHost = async function(tenantID, name) {
     const secret = short.generate();
+    const contactPoint = await SettingsController.generateOpenIP();
 
     const host = await Host.create({
         name, tenantID, secret, contactPoint
@@ -12,6 +14,7 @@ HostController.createHost = async function(tenantID, name, contactPoint) {
 
     return {
         hostID: host.id,
+        contactPoint,
         secret
     }
 }

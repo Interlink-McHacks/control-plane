@@ -201,16 +201,16 @@ router.delete('/tenant/:tenantID/user/:userID', permissions.isUserInTenant, (req
 
 router.post('/tenant/:tenantID/host', (req, res) => {
     // must include tenant jointoken in body
-    if(!req.body.joinToken || !req.body.name || !req.body.contactPoint){
+    if(!req.body.joinToken || !req.body.name){
         return res.json({
             status: 401,
-            error: "name, joinToken, and contactPoint is required."
+            error: "name and joinToken is required."
         })
     }
 
     TenantController.getJoinToken(req.params.tenantID).then((joinToken) => {
         if(joinToken === req.body.joinToken){
-            HostController.createHost(req.params.tenantID, req.body.name, req.body.contactPoint).then((host) => {
+            HostController.createHost(req.params.tenantID, req.body.name).then((host) => {
                 return res.json({
                     status: 200,
                     message: "OK",
@@ -257,7 +257,7 @@ router.get('/tenant/:tenantID/host/:hostID', permissions.isUserInTenant, (req, r
     })
 })
 
-router.get('/tenant/:tenantID/host/:hostID/cmd', (req, res) => {
+router.post('/tenant/:tenantID/host/:hostID/cmd', (req, res) => {
     if(!req.body.secret) {
         return res.status(401).json({
             status: 401,
@@ -314,6 +314,12 @@ router.delete('/tenant/:tenantID/host/:hostID', (req, res) => {
 
 
 router.post('/tenant/:tenantID/tunnel', (req, res) => {
+    if(!req.body.name || !req.body.description || !req.body.hostID || !req.body.hostConnectPort || !req.body.wgListeningPort || req.body.type){
+        return res.json({
+            status: 400,
+            error: "name, description, hostID, hostConnectPort, wgListeningPort, type are required"
+        })
+    }
 
 })
 
@@ -326,7 +332,7 @@ router.delete('/tenant/:tenantID/tunnel/:tunnelID', (req, res) => {
 
 })
 
-router.post('/tenant/:tenantID/dns/A', permissions.isUserInTenant, (req, res) => {
+router.post('/tenant/:tenantID/dns/A', (req, res) => {
     if(!req.body.name || !req.body.destination || !req.body.destination.match(IPMatch)){
         return res.json({
             status: 401,

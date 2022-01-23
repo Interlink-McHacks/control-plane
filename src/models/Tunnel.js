@@ -15,13 +15,19 @@ const fields = {
         type: String,
         required: true
     },
-    srcPort: {
+    hostConnectPort: {
         type: Number,
         required: true
     },
-    destPort: {
+    wgListeningPort: {
         type: Number,
         required: true
+    },
+    type: {
+        type: String,
+        enum: ["TCP", "HTTP"],
+        required: true,
+        default: "TCP"
     }
 }
 
