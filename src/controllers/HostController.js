@@ -5,9 +5,11 @@ const SettingsController = require('../controllers/SettingsController');
 
 const HostController = {};
 
-HostController.createHost = async function(tenantID, name) {
+HostController.createHost = async function(tenantID, name, contactPoint) {
     const secret = short.generate();
-    const contactPoint = await SettingsController.generateOpenIP();
+    if(!contactPoint){
+        contactPoint = await SettingsController.generateOpenIP();
+    }
 
     const host = await Host.create({
         name, tenantID, secret, contactPoint

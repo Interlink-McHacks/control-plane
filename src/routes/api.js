@@ -211,7 +211,7 @@ router.post('/tenant/:tenantID/host', (req, res) => {
 
     TenantController.getJoinToken(req.params.tenantID).then((joinToken) => {
         if(joinToken === req.body.joinToken){
-            HostController.createHost(req.params.tenantID, req.body.name).then((host) => {
+            HostController.createHost(req.params.tenantID, req.body.name, req.body.contactPoint).then((host) => {
                 return res.json({
                     status: 200,
                     message: "OK",
@@ -399,24 +399,6 @@ router.get('/tenant/:tenantID/tunnel/:tunnelID', permissions.isUserInTenant, (re
     })
 })
 
-router.post('/tenant/:tenantID/tunnel/:tunnelID/connection', permissions.isUserInTenant, (req, res) => {
-    TunnelController.createConnectionToken(req.user.id, req.params.tunnelID).then((token) => {
-        return res.json({
-            status: 200,
-            message: "OK",
-            data: {
-                token: token
-            }
-        })
-    }).catch((err) => {
-        console.error('get tunnel connection token error', err);
-        return res.status(500).json({
-            status: 500,
-            error: err.message
-        })
-    })
-})
-
 router.delete('/tenant/:tenantID/tunnel/:tunnelID', permissions.isUserInTenant, (req, res) => {
     TunnelController.deleteTunnel(req.params.tunnelID).then(() => {
         return res.json({
@@ -456,6 +438,36 @@ router.post('/tenant/:tenantID/dns/A', (req, res) => {
         })
     })
 })
+
+router.post('/tunnel/:tunnelID/connection', (req, res, next) => {
+    TunnelController.getTunnel(req.params.tunnelID).then((tunnel) => {
+        req.params.tenantID = tunnel.tenantID;
+        return next();
+    }).catch((err) => {
+        console.error('create connection get tunnel tenant error', err);
+        return res.status(500).json({
+            status: 500,
+            error: err.message
+        })
+    })
+}, permissions.isUserInTenant, (req, res) => {
+    TunnelController.createConnectionToken(req.user.id, req.params.tunnelID).then((token) => {
+        return res.json({
+            status: 200,
+            message: "OK",
+            data: {
+                token: token
+            }
+        })
+    }).catch((err) => {
+        console.error('get tunnel connection token error', err);
+        return res.status(500).json({
+            status: 500,
+            error: err.message
+        })
+    })
+})
+
 
 router.get('/healthcheck', (req, res) => {
     return res.json({

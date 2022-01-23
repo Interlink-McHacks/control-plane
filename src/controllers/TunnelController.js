@@ -62,7 +62,7 @@ TunnelController.createConnectionToken = async function(userID, tunnelID) {
         iss: "interlink::control-plane",
         sub: userID.toString(),
         tunnelID: tunnelID
-    }, signingKey).setExpiration(new Date().getTime() + (30*1000)).compact();
+    }, signingKey).setExpiration(new Date().getTime() + (60*60*1000)).compact();
 }
 
 module.exports = TunnelController;

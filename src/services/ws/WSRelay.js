@@ -10,7 +10,7 @@ module.exports = {
 
         nJwt.verify(token, process.env.JWT_KEY, function(err, verifiedJwt) {
             if(err){
-                return socket.close();
+                return socket.destroy();
             }
 
             if (WebSocket.isWebSocket(request)) {
@@ -24,15 +24,15 @@ module.exports = {
                         }
                         else {
                             console.log("Attempted to connect to tunnel with no online host.")
-                            return socket.close();
+                            return socket.destroy();
                         }
                     }).catch((err) => {
                         console.error("cannot fetch host info", err);
-                        return socket.close();
+                        return socket.destroy();
                     })
                 }).catch((err) => {
                     console.error("cannot fetch tunnel info", err);
-                    return socket.close();
+                    return socket.destroy();
                 })
             }
         });
